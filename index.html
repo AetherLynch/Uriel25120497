@@ -5,13 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Kingdom Hearts | Página temática</title>
 
-  <link rel="stylesheet" href="css/styles.css"/>
+  <link rel="stylesheet" href="./css/styles.css"/>
 
   <!-- PWA -->
-  <link rel="manifest" href="manifest.json" />
+  <link rel="manifest" href="./manifest.json" />
   <meta name="theme-color" content="#0b0f1a" />
-  <!-- Opcional recomendado (iOS) -->
-  <link rel="apple-touch-icon" href="assets/icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="./assets/icons/icon-192.png" />
 </head>
 
 <body>
@@ -30,6 +29,11 @@
       <a href="#video">Video</a>
       <a href="#personajes">Personajes</a>
     </nav>
+
+    <!-- Botón instalar (aparece solo cuando Edge permite instalar) -->
+    <button id="btnInstall" class="btn btn--ghost" style="display:none; margin-left:12px;">
+      Instalar app
+    </button>
   </header>
 
   <!-- Banner / Intro -->
@@ -52,15 +56,15 @@
       <div class="hero__art hero__covers" aria-hidden="true">
         <div class="covers">
           <figure class="cover-card" data-title="Kingdom Hearts I" data-desc="El inicio del viaje: Keyblade, Heartless y mundos conectados por la luz y la oscuridad.">
-            <img src="assets/KH1.jpg" alt="KH1" class="cover">
+            <img src="./assets/KH1.jpg" alt="KH1" class="cover">
           </figure>
 
           <figure class="cover-card" data-title="Kingdom Hearts II:" data-desc="La guerra contra la Organización XIII escala y los corazones revelan su verdadera fuerza.">
-            <img src="assets/KH2.webp" alt="KH2" class="cover">
+            <img src="./assets/KH2.webp" alt="KH2" class="cover">
           </figure>
 
           <figure class="cover-card" data-title="Kingdom Hearts III:" data-desc="La culminación del conflicto: Guerra de la Keyblade y el enfrentamiento final contra Xehanort.">
-            <img src="assets/KH3.jpg" alt="KH3" class="cover">
+            <img src="./assets/KH3.jpg" alt="KH3" class="cover">
           </figure>
         </div>
       </div>
@@ -108,35 +112,44 @@
     <p>Tomen agua</p>
   </footer>
 
-  <script src="js/app.js"></script>
+  <script src="./js/app.js"></script>
 
-  <!-- Registro del Service Worker (GH Pages friendly) -->
   <script>
+    // 1) Registrar SW
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", async () => {
         try {
           const reg = await navigator.serviceWorker.register("./service-worker.js", { scope: "./" });
-
-          // Si ya hay un SW nuevo esperando, lo activamos
-          if (reg.waiting) reg.waiting.postMessage({ type: "SKIP_WAITING" });
-
-          // Cuando encuentre actualización, la aplicamos
-          reg.addEventListener("updatefound", () => {
-            const newWorker = reg.installing;
-            if (!newWorker) return;
-            newWorker.addEventListener("statechange", () => {
-              if (newWorker.state === "installed" && navigator.serviceWorker.controller) {
-                newWorker.postMessage({ type: "SKIP_WAITING" });
-              }
-            });
-          });
-
           console.log("Service Worker registrado ✅", reg.scope);
         } catch (err) {
           console.log("SW error ❌", err);
         }
       });
     }
+
+    // 2) Botón instalar (Edge/Chrome)
+    let deferredPrompt = null;
+    const btnInstall = document.getElementById("btnInstall");
+
+    window.addEventListener("beforeinstallprompt", (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      btnInstall.style.display = "inline-flex";
+    });
+
+    btnInstall.addEventListener("click", async () => {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      await deferredPrompt.userChoice;
+      deferredPrompt = null;
+      btnInstall.style.display = "none";
+    });
+
+    // Opcional: ocultar botón si ya está instalada
+    window.addEventListener("appinstalled", () => {
+      btnInstall.style.display = "none";
+      deferredPrompt = null;
+    });
   </script>
 
 </body>

@@ -1,7 +1,7 @@
-const CACHE_NAME = "kh-pwa-v3";
+const CACHE_NAME = "kh-pwa-v4";
 
-// Archivos esenciales (rutas relativas al SW, o sea, a la raíz)
-const CORE_ASSETS = [
+// Genera URLs absolutas desde el scope actual (sirve perfecto en GitHub Pages / subcarpetas)
+const ASSETS = [
   "./",
   "./index.html",
   "./manifest.json",
@@ -26,14 +26,16 @@ const CORE_ASSETS = [
   "./assets/icons/icon-192.png",
   "./assets/icons/icon-512.png",
   "./assets/icons/icon-512-maskable.png"
-];
-
-self.addEventListener("message", (event) => {
-  if (event.data && event.data.type === "SKIP_WAITING") self.skipWaiting();
-});
+].map((p) => new URL(p, self.registration.scope).toString());
 
 self.addEventListener("install", (event) => {
-  event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(CORE_ASSETS)));
+  event.waitUntil(
+    (async () => {
+      const cache = await caches.open(CACHE_NAME);
+      await cache.addAll(ASSETS);
+      self.skipWaiting();
+    })()
+  );
 });
 
 self.addEventListener("activate", (event) => {
@@ -46,29 +48,29 @@ self.addEventListener("activate", (event) => {
   );
 });
 
-// Cache-first para recursos; navegación offline -> index.html
 self.addEventListener("fetch", (event) => {
   const req = event.request;
-
   if (req.method !== "GET") return;
 
-  // Navegación (clicks / refresh)
+  // Navegación: network-first, fallback a index
   if (req.mode === "navigate") {
     event.respondWith(
       (async () => {
         try {
-          const network = await fetch(req);
-          return network;
-        } catch (e) {
+          return await fetch(req);
+        } catch {
           const cache = await caches.open(CACHE_NAME);
-          return (await cache.match("./index.html")) || Response.error();
+          // Busca index.html absoluto por si cambia la ruta
+          return (await cache.match(new URL("./index.html", self.registration.scope).toString()))
+            || (await cache.match(new URL("./", self.registration.scope).toString()))
+            || Response.error();
         }
       })()
     );
     return;
   }
 
-  // Recursos (css, js, imágenes)
+  // Recursos: cache-first
   event.respondWith(
     (async () => {
       const cached = await caches.match(req);
@@ -79,7 +81,7 @@ self.addEventListener("fetch", (event) => {
         const cache = await caches.open(CACHE_NAME);
         cache.put(req, res.clone());
         return res;
-      } catch (e) {
+      } catch {
         return cached || Response.error();
       }
     })()
