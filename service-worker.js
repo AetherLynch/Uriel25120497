@@ -1,6 +1,6 @@
-const CACHE_NAME = "kh-pwa-v4";
+const CACHE_NAME = "kh-pwa-v5";
 
-// Genera URLs absolutas desde el scope actual (sirve perfecto en GitHub Pages / subcarpetas)
+// Todo relativo al scope real en GitHub Pages
 const ASSETS = [
   "./",
   "./index.html",
@@ -8,10 +8,12 @@ const ASSETS = [
   "./css/styles.css",
   "./js/app.js",
 
+  // Portadas (en /assets)
   "./assets/KH1.jpg",
   "./assets/KH2.webp",
   "./assets/KH3.jpg",
 
+  // Personajes (en /assets)
   "./assets/Sora.webp",
   "./assets/Riku_KHIII.webp",
   "./assets/Kairi_KHIII.webp",
@@ -23,6 +25,7 @@ const ASSETS = [
   "./assets/Mickey_KHIII.webp",
   "./assets/Maestro_Xehanort.webp",
 
+  // Íconos (en /assets/icons)
   "./assets/icons/icon-192.png",
   "./assets/icons/icon-512.png",
   "./assets/icons/icon-512-maskable.png"
@@ -60,9 +63,7 @@ self.addEventListener("fetch", (event) => {
           return await fetch(req);
         } catch {
           const cache = await caches.open(CACHE_NAME);
-          // Busca index.html absoluto por si cambia la ruta
           return (await cache.match(new URL("./index.html", self.registration.scope).toString()))
-            || (await cache.match(new URL("./", self.registration.scope).toString()))
             || Response.error();
         }
       })()

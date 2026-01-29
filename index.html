@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Kingdom Hearts | Página temática</title>
 
+  <!-- Estilos -->
   <link rel="stylesheet" href="./css/styles.css"/>
 
   <!-- PWA -->
@@ -24,13 +25,14 @@
       <span class="brand__mark">✦</span>
       <span class="brand__text">Kingdom Hearts</span>
     </div>
+
     <nav class="nav">
       <a href="#historia">Historia</a>
       <a href="#video">Video</a>
       <a href="#personajes">Personajes</a>
     </nav>
 
-    <!-- Botón instalar (aparece solo cuando Edge permite instalar) -->
+    <!-- Botón instalar PWA -->
     <button id="btnInstall" class="btn btn--ghost" style="display:none; margin-left:12px;">
       Instalar app
     </button>
@@ -53,18 +55,22 @@
         <a class="btn btn--ghost" href="#video">Ver video</a>
       </div>
 
+      <!-- Portadas -->
       <div class="hero__art hero__covers" aria-hidden="true">
         <div class="covers">
-          <figure class="cover-card" data-title="Kingdom Hearts I" data-desc="El inicio del viaje: Keyblade, Heartless y mundos conectados por la luz y la oscuridad.">
-            <img src="./assets/KH1.jpg" alt="KH1" class="cover">
+          <figure class="cover-card" data-title="Kingdom Hearts I"
+            data-desc="El inicio del viaje: Keyblade, Heartless y mundos conectados por la luz y la oscuridad.">
+            <img src="./assets/KH1.jpg" alt="Kingdom Hearts I" class="cover">
           </figure>
 
-          <figure class="cover-card" data-title="Kingdom Hearts II:" data-desc="La guerra contra la Organización XIII escala y los corazones revelan su verdadera fuerza.">
-            <img src="./assets/KH2.webp" alt="KH2" class="cover">
+          <figure class="cover-card" data-title="Kingdom Hearts II"
+            data-desc="La guerra contra la Organización XIII escala y los corazones revelan su verdadera fuerza.">
+            <img src="./assets/KH2.webp" alt="Kingdom Hearts II" class="cover">
           </figure>
 
-          <figure class="cover-card" data-title="Kingdom Hearts III:" data-desc="La culminación del conflicto: Guerra de la Keyblade y el enfrentamiento final contra Xehanort.">
-            <img src="./assets/KH3.jpg" alt="KH3" class="cover">
+          <figure class="cover-card" data-title="Kingdom Hearts III"
+            data-desc="La culminación del conflicto: Guerra de la Keyblade y el enfrentamiento final contra Xehanort.">
+            <img src="./assets/KH3.jpg" alt="Kingdom Hearts III" class="cover">
           </figure>
         </div>
       </div>
@@ -75,17 +81,16 @@
   <section id="video" class="section">
     <div class="section__head">
       <h2>Trailer Kingdom Hearts 4</h2>
-      <p>Proximo juego de la saga</p>
+      <p>Próximo juego de la saga</p>
     </div>
 
     <div class="video-wrap reveal">
       <div class="video-frame">
         <iframe
-          src="https://www.youtube.com/embed/lvTA95QRKxE?si=txuMfmDecn4gnME4"
+          src="https://www.youtube.com/embed/lvTA95QRKxE"
           title="Kingdom Hearts Trailer"
           frameborder="0"
-          referrerpolicy="strict-origin-when-cross-origin"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           allowfullscreen>
         </iframe>
       </div>
@@ -96,39 +101,46 @@
   <section id="personajes" class="section">
     <div class="section__head">
       <h2>Personajes</h2>
-      <p>Estos son algunos de los personajes principales de la historia asi como su arma principal.</p>
+      <p>Personajes principales y su arma característica.</p>
     </div>
 
     <div class="scroller">
       <button class="scroll-btn left" aria-label="Desplazar a la izquierda">‹</button>
+
       <div class="cards" id="cards">
-        <!-- ...tus cards igual... -->
+        <!-- Aquí van tus cards (usan imágenes desde /assets) -->
       </div>
+
       <button class="scroll-btn right" aria-label="Desplazar a la derecha">›</button>
     </div>
   </section>
 
   <footer class="footer">
-    <p>Tomen agua</p>
+    <p>Tomen agua 💧</p>
   </footer>
 
+  <!-- JS principal -->
   <script src="./js/app.js"></script>
 
+  <!-- Service Worker + Instalación PWA -->
   <script>
-    // 1) Registrar SW
+    // Registrar Service Worker (GitHub Pages compatible)
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", async () => {
         try {
-          const reg = await navigator.serviceWorker.register("./service-worker.js", { scope: "./" });
+          const reg = await navigator.serviceWorker.register(
+            "/Uriel25120497/service-worker.js",
+            { scope: "/Uriel25120497/" }
+          );
           console.log("Service Worker registrado ✅", reg.scope);
         } catch (err) {
-          console.log("SW error ❌", err);
+          console.error("SW error ❌", err);
         }
       });
     }
 
-    // 2) Botón instalar (Edge/Chrome)
-    let deferredPrompt = null;
+    // Botón instalar PWA (Edge / Chrome)
+    let deferredPrompt;
     const btnInstall = document.getElementById("btnInstall");
 
     window.addEventListener("beforeinstallprompt", (e) => {
@@ -145,10 +157,10 @@
       btnInstall.style.display = "none";
     });
 
-    // Opcional: ocultar botón si ya está instalada
     window.addEventListener("appinstalled", () => {
-      btnInstall.style.display = "none";
       deferredPrompt = null;
+      btnInstall.style.display = "none";
+      console.log("PWA instalada 🎉");
     });
   </script>
 
